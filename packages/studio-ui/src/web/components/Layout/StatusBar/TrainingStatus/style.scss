@@ -1,0 +1,76 @@
+.trainCenter {
+  background-color: var(--c-text--light);
+  color: var(--c-text--light-gray);
+  min-width: 150px;
+  font-size: 12px;
+
+  justify-content: space-between;
+  line-height: 1.22;
+  width: fit-content;
+
+  &_lang {
+    display: flex;
+    padding: 5px 10px;
+    line-height: 25px;
+    justify-content: space-between;
+
+    &_code {
+      width: fit-content;
+      width: 50px;
+    }
+  }
+}
+
+.trainStatus {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  white-space: nowrap;
+
+  &_pending {
+    display: flex;
+
+    &.text {
+      margin-right: 1em;
+    }
+  }
+
+  :global(.bp3-button).button {
+    background-color: var(--seashell);
+    color: var(--shark);
+    min-height: 0;
+    border-radius: 3px;
+    font-size: 10px;
+    height: 20px;
+    padding: 6px;
+    transition: background 0.3s ease-in-out;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--gray);
+    }
+
+    &.danger {
+      background-color: var(--lighthouse);
+      color: white;
+
+      &:hover {
+        background-color: var(--hover-lighthouse);
+      }
+    }
+  }
+
+  &_message {
+    &_light {
+      color: var(--gray);
+    }
+
+    &_dark {
+      color: var(--shark);
+    }
+
+    &_spaced {
+      margin-right: 2%;
+    }
+  }
+}

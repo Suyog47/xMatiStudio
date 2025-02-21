@@ -1,0 +1,163 @@
+@import '../../../palette.scss';
+
+.dropZone {
+  background-color: var(--bg);
+  border-radius: var(--spacing-small);
+  box-shadow: inset -1px 2px 0px var(--seashell), inset 1px 2px 0px var(--seashell), inset 0px 2px 0px var(--seashell);
+  padding: var(--spacing-small) 0;
+}
+
+.draggableItem {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding: var(--spacing-small) 0;
+  &.dragging {
+    background-color: #fff;
+    box-shadow: 0 0 0 1px var(--seashell), 0 1px 1px var(--seashell), 0 2px 6px var(--seashell);
+    .content {
+      border: transparent;
+    }
+  }
+
+  .handle {
+    width: var(--spacing-large);
+    color: var(--reef);
+  }
+
+  .content {
+    flex-grow: 1;
+    margin-right: var(--spacing-small);
+    background-color: #fff;
+    border: solid 1px var(--seashell);
+    border-radius: var(--spacing-medium);
+  }
+
+  .moreOptions {
+    width: var(--spacing-x-large);
+    margin-left: auto;
+    margin-right: var(--spacing-small);
+    height: 100%;
+    > div {
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+    .moreOptionsButton {
+      cursor: pointer;
+      &:hover {
+        svg {
+          fill: var(--ocean);
+        }
+      }
+    }
+    .menu {
+      min-width: 130px;
+    }
+  }
+}
+
+.missingTranslation {
+  color: var(--lighthouse);
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  color: var(--shark);
+  overflow: hidden;
+  max-width: 300px;
+
+  .icon {
+    padding: var(--spacing-x-small);
+    margin-right: 8px;
+  }
+
+  &.rtl {
+    .icon {
+      margin-right: unset;
+      margin-left: 8px;
+    }
+  }
+
+  .name {
+    line-height: 1.25;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    span {
+      padding: 2px 4px;
+      border-radius: 2px;
+    }
+
+    :global(.var) {
+      background-color: #e7f0ff;
+      color: blue;
+    }
+
+    :global(.val) {
+      background-color: #fff5ea;
+      color: #ff7c40;
+    }
+  }
+}
+
+.popoverPortal {
+  :global(.bp3-popover-appear-done),
+  :global(.bp3-transition-container) {
+    left: -15px !important; // hack to not show portal on top of draggable handle
+  }
+}
+
+.popoverContent {
+  padding: var(--spacing-medium);
+  max-width: 300px;
+  word-break: break-all;
+}
+
+.extraItems {
+  color: $content-color-light;
+  display: block;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.editableInput {
+  line-height: 22px;
+  font-size: 18px;
+  font-weight: 300;
+  color: #000;
+
+  &.defaultValue {
+    font-style: italic;
+    font-weight: 400;
+    color: #999;
+  }
+
+  width: 200px;
+
+  border: 1px solid #fff;
+  padding: 2px 5px;
+  border-radius: 3px;
+
+  &:hover {
+    border: 1px solid #eee;
+  }
+
+  &:focus {
+    outline-color: transparent;
+    outline-style: none;
+    font-weight: 300;
+    font-style: normal;
+    border: 1px solid #2d74f3;
+  }
+}
+
+.imagePreview {
+  height: 1rem;
+}
+
+.rtl {
+  direction: rtl;
+}
