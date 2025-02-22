@@ -138,7 +138,7 @@ export class ConfigProvider {
         customCss: ''
       },
       studio: {
-        title: 'Botpress Studio',
+        title: 'xMati',
         favicon: 'assets/studio/ui/public/img/favicon.png',
         customCss: ''
       }
