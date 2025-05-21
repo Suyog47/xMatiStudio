@@ -133,7 +133,7 @@ export class ConfigProvider {
   public async getBrandingConfig(appName: 'admin' | 'studio') {
     const defaultConfig = {
       admin: {
-        title: 'Botpress Admin Panel',
+        title: 'xMati Admin Panel',
         favicon: 'assets/admin/ui/public/favicon.ico',
         customCss: ''
       },

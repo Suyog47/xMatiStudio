@@ -1,3 +1,7 @@
+# [0.1.0](https://github.com/Suyog47/MBPStudio/compare/0.0.69...0.1.0) (2025-05-21)
+
+
+
 ## [0.0.68](https://github.com/botpress/studio/compare/v0.0.66...v0.0.68) (2023-11-03)
 
 

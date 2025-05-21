@@ -1,8 +1,8 @@
 {
   "name": "@botpress/studio",
-  "version": "0.0.68",
+  "version": "0.1.0",
   "description": "Create your virtual assistants",
-  "repository": "https://github.com/botpress/studio.git",
+  "repository": "https://github.com/Suyog47/MBPStudio.git",
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0",
   "scripts": {
