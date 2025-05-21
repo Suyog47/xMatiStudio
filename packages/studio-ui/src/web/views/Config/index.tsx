@@ -83,18 +83,18 @@ class ConfigView extends Component<Props, State> {
       icon: 'cog',
       selected: true
     },
-    {
-      label: lang.tr('config.additionalDetails'),
-      value: 'details',
-      icon: 'list-detail-view',
-      selected: false
-    },
-    {
-      label: lang.tr('config.avatarAndCover'),
-      value: 'pictures',
-      icon: 'media',
-      selected: false
-    }
+    // {
+    //   label: lang.tr('config.additionalDetails'),
+    //   value: 'details',
+    //   icon: 'list-detail-view',
+    //   selected: false
+    // },
+    // {
+    //   label: lang.tr('config.avatarAndCover'),
+    //   value: 'pictures',
+    //   icon: 'media',
+    //   selected: false
+    // }
   ]
 
   state: State = {

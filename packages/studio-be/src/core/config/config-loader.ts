@@ -138,7 +138,7 @@ export class ConfigProvider {
         customCss: ''
       },
       studio: {
-        title: 'xMati',
+        title: 'xMati Studio',
         favicon: 'assets/studio/ui/public/img/favicon.png',
         customCss: ''
       }

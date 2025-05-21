@@ -22,7 +22,7 @@ type StateProps = ReturnType<typeof mapStateToProps>
 
 type Props = StateProps & OwnProps
 const FORUM_LINK = 'https://discord.gg/botpress'
-const DOCS_LINK = 'https://v12.botpress.com/'
+const DOCS_LINK = 'https://docs.google.com/document/d/1lZvhckBRyaUaJMQB8-MZ19LibMPcudYvwKnKXIduY9I/edit?usp=sharing'
 
 const Toolbar: FC<Props> = (props) => {
   const { toggleDocs, toggleGuidedTour, hasDoc, onToggleEmulator, isEmulatorOpen, toggleBottomPanel } = props
@@ -56,12 +56,12 @@ const Toolbar: FC<Props> = (props) => {
                 <Popover
                   content={
                     <Menu>
-                      <MenuItem icon="learning" text={lang.tr('toolbar.tutorial')} onClick={toggleGuidedTour} />
+                      {/* <MenuItem icon="learning" text={lang.tr('toolbar.tutorial')} onClick={toggleGuidedTour} />
                       <MenuItem
                         icon="people"
                         text={lang.tr('toolbar.forum')}
                         onClick={() => window.open(FORUM_LINK, '_blank')}
-                      />
+                      /> */}
                       <MenuItem
                         icon="book"
                         text={lang.tr('toolbar.docs')}
@@ -86,7 +86,7 @@ const Toolbar: FC<Props> = (props) => {
               </Tooltip>
             </Fragment>
           )}
-          <AccessControl resource="bot.logs" operation="read">
+          {/* <AccessControl resource="bot.logs" operation="read">
             <Tooltip
               content={
                 <div className={style.tooltip}>
@@ -102,7 +102,7 @@ const Toolbar: FC<Props> = (props) => {
                 <span className={style.label}>{lang.tr('toolbar.bottomPanel')}</span>
               </button>
             </Tooltip>
-          </AccessControl>
+          </AccessControl> */}
           {window.IS_BOT_MOUNTED && (
             <Tooltip content={<ShortcutLabel light shortcut="emulator-focus" />}>
               <button
