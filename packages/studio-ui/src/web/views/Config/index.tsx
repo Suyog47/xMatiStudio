@@ -353,7 +353,7 @@ class ConfigView extends Component<Props, State> {
                     onChange={this.handleInputChanged}
                   />
                 </FormGroup>
-                <FormGroup label={lang.tr('status')} labelFor="status">
+                {/* <FormGroup label={lang.tr('status')} labelFor="status">
                   <Select
                     id="status"
                     name="status"
@@ -361,7 +361,7 @@ class ConfigView extends Component<Props, State> {
                     value={this.state.status}
                     onChange={this.handleStatusChanged}
                   />
-                </FormGroup>
+                </FormGroup> */}
                 <FormGroup label={lang.tr('config.description')} labelFor="description">
                   <TextArea
                     id="description"
@@ -372,7 +372,7 @@ class ConfigView extends Component<Props, State> {
                     onChange={this.handleInputChanged}
                   />
                 </FormGroup>
-                {this.renderLanguages()}
+                {/* {this.renderLanguages()} */}
               </div>
             )}
             {this.state.activeTab === 'details' && (

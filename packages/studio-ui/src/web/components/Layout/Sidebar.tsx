@@ -44,13 +44,13 @@ const BASIC_MENU_ITEMS = [
     rule: { res: 'module.qna', op: 'write' },
     icon: 'chat'
   },
-  {
-    id: 'libraries',
-    name: lang.tr('libraries.fullName'),
-    path: '/libraries',
-    rule: { res: 'module.code-editor', op: 'read' },
-    icon: 'book'
-  }
+  // {
+  //   id: 'libraries',
+  //   name: lang.tr('libraries.fullName'),
+  //   path: '/libraries',
+  //   rule: { res: 'module.code-editor', op: 'read' },
+  //   icon: 'book'
+  // }
 ]
 
 const configItem = {
@@ -111,7 +111,7 @@ const Sidebar: FC<Props> = (props) => {
   return (
     <aside className={classnames(style.sidebar, 'bp-sidebar')}>
       <a href="admin/" className={classnames(style.logo, 'bp-logo')} id="bp-menu_admin">
-        <img width="19" src="assets/studio/ui/public/img/logo-icon.svg" alt="Botpress Logo" />
+        <img width="19" src="assets/studio/ui/public/img/xmati.png" alt="Botpress Logo" />
       </a>
       <ul className={classnames('nav')}>
         {window.IS_BOT_MOUNTED ? (
@@ -122,8 +122,8 @@ const Sidebar: FC<Props> = (props) => {
           </Fragment>
         ) : (
           <Fragment>
-            {props.modules.filter((m) => m.name === 'code-editor').map(renderModuleItem)}
-            {renderBasicItem(configItem)}
+            {/* {props.modules.filter((m) => m.name === 'code-editor').map(renderModuleItem)}
+            {renderBasicItem(configItem)} */}
           </Fragment>
         )}
       </ul>

@@ -170,7 +170,7 @@ const Layout: FC<Props> = (props: Props) => {
     'go-flow': () => gotoUrl('/flows'),
     'go-home': goHome,
     'go-content': () => gotoUrl('/content'),
-    'go-module-code': () => gotoUrl('/modules/code-editor'),
+    // 'go-module-code': () => gotoUrl('/modules/code-editor'),
     'go-module-qna': () => gotoUrl('/modules/qna'),
     'go-module-testing': () => gotoUrl('/modules/testing'),
     'go-module-analytics': () => gotoUrl('/modules/analytics'),
@@ -213,7 +213,7 @@ const Layout: FC<Props> = (props: Props) => {
                     return window.IS_BOT_MOUNTED ? <Redirect to="/flows" /> : <Redirect to="/config" />
                   }}
                 />
-                <Route exact path="/libraries" component={Libraries} />
+                {/* <Route exact path="/libraries" component={Libraries} /> */}
                 <Route exact path="/content" component={Content} />
                 <Route exact path="/flows/:flow*" component={FlowBuilder} />
                 <Route exact path="/config" component={Config} />

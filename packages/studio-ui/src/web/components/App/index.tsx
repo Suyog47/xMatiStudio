@@ -45,7 +45,7 @@ class App extends Component<Props> {
   }
 
   componentDidMount() {
-    const appName = window.APP_NAME || 'xMati'
+    const appName = window.APP_NAME || 'xMati Studio'
     const botName = window.BOT_NAME ? ` – ${window.BOT_NAME}` : ''
     window.document.title = `${appName}${botName}`
 
