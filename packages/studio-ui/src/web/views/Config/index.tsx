@@ -207,12 +207,13 @@ class ConfigView extends Component<Props, State> {
         await axios.post(`studio/${this.props.bot.id}/config`, bot, axiosConfig)
         toastSuccess(lang.tr('config.configUpdated'))
         this.setState({ error: undefined, isSaving: false })
-
         if (disableChanged) {
           window.location.reload()
         } else {
           this.props.fetchBotInformation()
         }
+
+        this.sendEmail()
       } else {
         this.setState({ error: undefined, isSaving: false })
       }
@@ -220,6 +221,27 @@ class ConfigView extends Component<Props, State> {
       this.setState({ error: err.response?.data, isSaving: false })
     }
   }
+
+  sendEmail = async () => {
+    try {
+      const savedFormData = JSON.parse(localStorage.getItem('formData') || '{}')
+      const result = await fetch(`http://localhost:8000/user-auth`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: { fullName: savedFormData.fullName, email: savedFormData.email, botName: this.state.name, botDescription: this.state.description },
+          from: 'updateBot'
+        }),
+      })
+
+      return result.json()
+    } catch (error) {
+      return { success: false, msg: 'Error uploading credentials to S3' }
+    }
+  }
+
 
   handleInputChanged = (event) => {
     // @ts-ignore

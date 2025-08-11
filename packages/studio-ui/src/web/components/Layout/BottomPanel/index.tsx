@@ -120,11 +120,11 @@ const BottomPanel = (props) => {
         <DevPanel.Container activeTab={tab} />
         <Logs commonButtons={commonButtons} hidden={tab !== 'logs'} />
 
-        {tab === CODE_EDITOR && (
+        {/* {tab === CODE_EDITOR && (
           <div className={cx(style.commonButtons)}>
             <ButtonGroup minimal={true}>{commonButtons}</ButtonGroup>
           </div>
-        )}
+        )} */}
 
         <Debugger
           messageId={messageId}

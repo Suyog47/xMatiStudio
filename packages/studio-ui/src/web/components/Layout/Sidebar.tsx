@@ -63,6 +63,10 @@ const configItem = {
 
 const Sidebar: FC<Props> = (props) => {
   const renderModuleItem = (module) => {
+    if (module.name === 'code-editor' || module.name === 'misunderstood') {
+      return null
+    }
+
     const rule = { res: `module.${module.name}`, op: 'write' }
     const path = `/modules/${module.name}`
     const iconPath = `assets/modules/${module.name}/studio_${module.menuIcon}`

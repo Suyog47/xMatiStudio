@@ -16,5 +16,8 @@
   "typescript.tsdk": ".yarn/sdks/typescript/lib",
   "files.associations": {
     "*.styl": "scss"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   }
 }
