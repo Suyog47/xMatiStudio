@@ -41,11 +41,11 @@ export default class GuidedTour extends React.Component<Props> {
     const steps = [
       {
         selector: '',
-        content: 'Welcome to Botpress! This is a quick tour of the most important features.'
+        content: 'Welcome to xMati! This is a quick tour of the most important features.'
       },
       {
         selector: '#statusbar_tutorial',
-        content: 'You can re-open the tutorial at any time by clicking this button.'
+        content: 'Whenever you need help, just click on the question mark icon and it will take you to our documentation.'
       },
       {
         selector: '#bp-menu_flows',
@@ -62,7 +62,7 @@ export default class GuidedTour extends React.Component<Props> {
       },
       {
         selector: '#statusbar_emulator',
-        content: 'Use the emulator to try out your bot at any time! You can also use it to troubleshoot.'
+        content: 'Use the emulator to try out your bot at any time.'
       },
       {
         selector: '#bp-menu_admin',
@@ -70,7 +70,7 @@ export default class GuidedTour extends React.Component<Props> {
       },
       {
         selector: '',
-        content: 'All done. Enjoy building bots! For more information, please refer to the guides on botpress.com/docs'
+        content: 'All done. Enjoy building bots! For more information, please refer to https://xmati.ai/'
       }
     ]
 

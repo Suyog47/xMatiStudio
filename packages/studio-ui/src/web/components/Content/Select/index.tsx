@@ -148,32 +148,32 @@ class SelectContent extends Component<Props, State> {
 
   resetCreateContent =
     (resetSearch = false) =>
-    (response: AxiosResponse<{ id: string }>) => {
-      const { data: id } = response || {}
+      (response: AxiosResponse<{ id: string }>) => {
+        const { data: id } = response || {}
 
-      if (!id && CONTENT_TYPES_MEDIA.includes(this.state.newItemCategory.id)) {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.props.deleteMedia(this.state.newItemData)
+        if (!id && CONTENT_TYPES_MEDIA.includes(this.state.newItemCategory.id)) {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          this.props.deleteMedia(this.state.newItemData)
+        }
+
+        const stateUpdate = { newItemCategory: null, newItemData: null }
+        if (resetSearch) {
+          Object.assign(stateUpdate, {
+            searchTerm: '',
+            activeItemIndex: 0
+          })
+        }
+        return new Promise((resolve) =>
+          this.setState(stateUpdate, async () => {
+            if (id) {
+              const { data: item } = await axios.get(`${window.STUDIO_API_PATH}/cms/element/${id}`)
+              this.handlePick(item)
+            }
+
+            resolve()
+          })
+        )
       }
-
-      const stateUpdate = { newItemCategory: null, newItemData: null }
-      if (resetSearch) {
-        Object.assign(stateUpdate, {
-          searchTerm: '',
-          activeItemIndex: 0
-        })
-      }
-      return new Promise((resolve) =>
-        this.setState(stateUpdate, async () => {
-          if (id) {
-            const { data: item } = await axios.get(`${window.STUDIO_API_PATH}/cms/element/${id}`)
-            this.handlePick(item)
-          }
-
-          resolve()
-        })
-      )
-    }
 
   onClose = () => {
     this.setState({ show: false }, () => {
@@ -204,22 +204,26 @@ class SelectContent extends Component<Props, State> {
       <div>
         <strong>{lang.tr('studio.content.searchIn')}</strong>
         <div className="list-group">
-          <a onClick={() => this.setCurrentCategory(null)} className="list-group-item list-group-item-action">
+          {/* <a onClick={() => this.setCurrentCategory(null)} className="list-group-item list-group-item-action">
             {lang.tr('all')}
-          </a>
+          </a> */}
           {categories
             .filter((cat) => !cat.hidden)
-            .map((category, i) => (
-              <a
-                key={i}
-                onClick={() => this.setCurrentCategory(category.id)}
-                className={classnames('list-group-item', 'list-group-item-action', {
-                  active: i === this.state.activeItemIndex
-                })}
-              >
-                {lang.tr(category.title)}
-              </a>
-            ))}
+            .map((category, i) => {
+              if (category.title.toLowerCase() == 'text' || category.title.toLowerCase() == 'module.builtin.types.dropdown.title') {
+                return (
+                  <a
+                    key={i}
+                    onClick={() => this.setCurrentCategory(category.id)}
+                    className={classnames('list-group-item', 'list-group-item-action', {
+                      active: i === this.state.activeItemIndex
+                    })}
+                  >
+                    {lang.tr(category.title)}
+                  </a>
+                )
+              }
+            })}
         </div>
       </div>
     )
@@ -345,9 +349,8 @@ class SelectContent extends Component<Props, State> {
             <a
               key={i}
               onClick={() => this.openNewEditor(category)}
-              className={`list-group-item list-group-item-action ${style.createItem} ${
-                !hasSearchResults && i === this.state.activeItemIndex ? 'active' : ''
-              }`}
+              className={`list-group-item list-group-item-action ${style.createItem} ${!hasSearchResults && i === this.state.activeItemIndex ? 'active' : ''
+                }`}
             >
               {lang.tr('studio.content.createNew', { title: lang.tr(category.title) })}
             </a>
