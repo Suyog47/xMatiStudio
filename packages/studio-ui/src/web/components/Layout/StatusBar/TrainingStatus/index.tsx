@@ -1,4 +1,4 @@
-import { Button } from '@blueprintjs/core'
+import { Button, Intent } from '@blueprintjs/core'
 import axios from 'axios'
 import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
@@ -150,7 +150,7 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
       case 'training':
         return {
           text: `Training... ${progress}%`,
-          intent: 'warning',
+          intent: Intent.WARNING,
           disabled: true,
           style: {
             ...baseStyle,
@@ -161,7 +161,7 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
       case 'needs-training':
         return {
           text: lang.tr('statusBar.trainChatbot'),
-          intent: 'primary',
+          intent: Intent.PRIMARY,
           onClick: handleTrainClick,
           style: {
             ...baseStyle,
@@ -263,7 +263,8 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
     <div style={{
       position: 'fixed',
       bottom: '20px',
-      right: '20px',
+      left: '50%',
+      transform: 'translateX(-50%)',
       zIndex: 1000,
       display: 'flex',
       justifyContent: 'center',
