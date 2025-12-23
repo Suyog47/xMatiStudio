@@ -18,6 +18,18 @@ const AVAILABLE_TYPES = [
   }
 ]
 
+// Protected custom entities that cannot be used as names
+const PROTECTED_ENTITIES = [
+  'custom.email',
+  'custom.phone',
+  'custom.url',
+  'custom.number',
+  'custom.date',
+  'custom.time',
+  'custom.zipcode',
+  'custom.percentage'
+]
+
 export type EntityModalAction = 'create' | 'rename' | 'duplicate'
 
 interface Props {
@@ -87,6 +99,7 @@ export const EntityNameModal: FC<Props> = (props) => {
 
   const isIdentical = props.action === 'rename' && props.originalEntity.name === name
   const alreadyExists = !isIdentical && _.some(props.entityIDs, (id) => id === getEntityId(name))
+  const isProtectedName = PROTECTED_ENTITIES.includes(name.trim())
 
   let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('create') }
   let submitText = lang.tr('create')
@@ -133,6 +146,12 @@ export const EntityNameModal: FC<Props> = (props) => {
               {lang.tr('nlu.entities.nameConflictMessage')}
             </Callout>
           )}
+
+          {isProtectedName && (
+            <Callout title="Reserved Entity Name" intent={Intent.DANGER}>
+              This entity name is reserved for system use. Please choose a different name.
+            </Callout>
+          )}
         </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
@@ -142,7 +161,7 @@ export const EntityNameModal: FC<Props> = (props) => {
               tabIndex={3}
               intent={Intent.PRIMARY}
               text={submitText}
-              disabled={!isValid || isIdentical || alreadyExists}
+              disabled={!isValid || isIdentical || alreadyExists || isProtectedName}
             />
           </div>
         </div>

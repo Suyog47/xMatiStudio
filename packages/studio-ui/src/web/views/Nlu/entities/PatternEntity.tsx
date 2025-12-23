@@ -23,6 +23,18 @@ interface Props {
   updateEntity: (targetEntity: string, entity: NLU.EntityDefinition) => void
 }
 
+// Protected custom entities that cannot be edited
+const PROTECTED_ENTITIES = [
+  'custom.email',
+  'custom.phone',
+  'custom.url',
+  'custom.number',
+  'custom.date',
+  'custom.time',
+  'custom.zipcode',
+  'custom.percentage'
+]
+
 export const PatternEntityEditor: React.FC<Props> = (props) => {
   const [matchCase, setMatchCase] = useState<boolean>(props.entity.matchCase)
   const [sensitive, setSensitive] = useState<boolean>(props.entity.sensitive)
@@ -30,6 +42,8 @@ export const PatternEntityEditor: React.FC<Props> = (props) => {
   const [patternValid, setPatternValid] = useState<boolean>(true)
   const [examplesStr, setExampleStr] = useState((props.entity.examples || []).join('\n'))
   const [allExamplesMatch, setExamplesMatch] = useState<boolean>(true)
+
+  const isProtected = PROTECTED_ENTITIES.includes(props.entity.name)
 
   useEffect(() => {
     setMatchCase(!!props.entity.matchCase)
@@ -103,6 +117,8 @@ export const PatternEntityEditor: React.FC<Props> = (props) => {
             value={pattern}
             intent={patternValid ? 'none' : 'danger'}
             onChange={(e) => setPattern(e.target.value)}
+            disabled={isProtected}
+            readOnly={isProtected}
           />
         </FormGroup>
         <FormGroup
@@ -126,6 +142,8 @@ export const PatternEntityEditor: React.FC<Props> = (props) => {
             value={examplesStr}
             intent={allExamplesMatch ? 'none' : 'danger'}
             onChange={(e) => setExampleStr(e.target.value)}
+            disabled={isProtected}
+            readOnly={isProtected}
           />
         </FormGroup>
       </div>
@@ -134,6 +152,7 @@ export const PatternEntityEditor: React.FC<Props> = (props) => {
         <Checkbox
           checked={matchCase}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMatchCase(e.target.checked)}
+          disabled={isProtected}
         >
           <span>{lang.tr('nlu.entities.matchCaseLabel')}</span>&nbsp;
           <Tooltip
@@ -147,6 +166,7 @@ export const PatternEntityEditor: React.FC<Props> = (props) => {
         <Checkbox
           checked={sensitive}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSensitive(e.target.checked)}
+          disabled={isProtected}
         >
           <span>{lang.tr('nlu.entities.sensitiveLabel')}</span>&nbsp;
           <Tooltip

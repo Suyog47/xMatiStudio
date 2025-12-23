@@ -5,19 +5,32 @@ import React, { FC, useEffect, useState } from 'react'
 import { NluClient } from '../../client'
 import style from '../style.scss'
 
+// COMMENTED OUT: Duckling system entities - replaced with custom pattern entities
+// const SYSTEM_ENTITIES = [
+//   'amountOfMoney',
+//   'distance',
+//   'duration',
+//   'email',
+//   'number',
+//   'ordinal',
+//   'phoneNumber',
+//   'quantity',
+//   'temperature',
+//   'time',
+//   'url',
+//   'volume'
+// ]
+
+// Custom pattern entities with regex validations to replace duckling system entities
 const SYSTEM_ENTITIES = [
-  'amountOfMoney',
-  'distance',
-  'duration',
-  'email',
-  'number',
-  'ordinal',
-  'phoneNumber',
-  'quantity',
-  'temperature',
-  'time',
-  'url',
-  'volume'
+  'custom.email',
+  'custom.phone',
+  'custom.url',
+  'custom.number',
+  'custom.date',
+  'custom.time',
+  'custom.zipcode',
+  'custom.percentage'
 ]
 
 interface EntityOption {

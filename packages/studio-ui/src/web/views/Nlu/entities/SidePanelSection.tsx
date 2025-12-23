@@ -18,6 +18,18 @@ interface Props {
   reloadIntents: () => void
 }
 
+// Protected custom entities that cannot be edited or deleted
+const PROTECTED_ENTITIES = [
+  'custom.email',
+  'custom.phone',
+  'custom.url',
+  'custom.number',
+  'custom.date',
+  'custom.time',
+  'custom.zipcode',
+  'custom.percentage'
+]
+
 export const EntitySidePanelSection: FC<Props> = (props) => {
   const [entitiesFilter, setEntitiesFilter] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
@@ -55,21 +67,25 @@ export const EntitySidePanelSection: FC<Props> = (props) => {
   const customEntities = props.entities.filter((e) => e.type !== 'system')
   const entityItems: Item[] = customEntities
     .filter((entity) => !entitiesFilter || entity.name.includes(entitiesFilter))
-    .map((entity) => ({
-      key: entity.name,
-      label: entity.name,
-      value: entity.name,
-      selected: props.currentItem && props.currentItem.name === entity.name,
-      contextMenu: [
-        { label: lang.tr('rename'), icon: 'edit', onClick: () => renameEntity(entity) },
-        {
-          label: lang.tr('duplicate'),
-          icon: 'duplicate',
-          onClick: () => duplicateEntity(entity)
-        },
-        { label: lang.tr('delete'), icon: 'delete', onClick: () => deleteEntity(entity) }
-      ]
-    }))
+    .map((entity) => {
+      const isProtected = PROTECTED_ENTITIES.includes(entity.name)
+
+      return {
+        key: entity.name,
+        label: entity.name,
+        value: entity.name,
+        selected: props.currentItem && props.currentItem.name === entity.name,
+        contextMenu: isProtected ? [] : [
+          { label: lang.tr('rename'), icon: 'edit', onClick: () => renameEntity(entity) },
+          {
+            label: lang.tr('duplicate'),
+            icon: 'duplicate',
+            onClick: () => duplicateEntity(entity)
+          },
+          { label: lang.tr('delete'), icon: 'delete', onClick: () => deleteEntity(entity) }
+        ]
+      }
+    })
 
   const onEntityModified = (entity: NLU.EntityDefinition) => {
     props.setCurrentItem({ type: 'entity', name: entity.name })

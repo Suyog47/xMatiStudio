@@ -7,15 +7,18 @@ import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
 import { JobService } from 'core/distributed/job-service'
 import { MigrationService } from 'core/migration'
+import { sanitizeFileName } from 'core/misc/utils'
 import { InvalidOperationError } from 'core/routers'
 import { WrapErrorsWith } from 'errors'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
 import path from 'path'
+import { CUSTOM_PATTERN_ENTITIES } from 'studio/nlu/custom-pattern-entities'
 
 const BOT_CONFIG_FILENAME = 'bot.config.json'
 const BOT_ID_PLACEHOLDER = '/bots/BOT_ID_PLACEHOLDER/'
+const ENTITIES_DIR = './entities'
 
 const debug = DEBUG('services:bots')
 
@@ -261,6 +264,9 @@ export class BotService {
 
       await this.migrateBotContent(botId)
 
+      // Initialize custom pattern entities for the bot
+      await this.initializeCustomPatternEntities(botId)
+
       await this.cms.loadElementsForBot(botId)
 
       BotService._mountedBots.set(botId, true)
@@ -283,6 +289,29 @@ export class BotService {
       return false
     } finally {
       debug.forBot(botId, `Mount took ${Date.now() - startTime}ms`)
+    }
+  }
+
+  /**
+   * Initialize custom pattern entities for a bot if they don't already exist
+   * This ensures the NLU server can access these entities during training
+   */
+  private async initializeCustomPatternEntities(botId: string): Promise<void> {
+    try {
+      for (const entity of CUSTOM_PATTERN_ENTITIES) {
+        const nameSanitized = sanitizeFileName(entity.name)
+        const entityExists = await this.ghostService.forBot(botId).fileExists(ENTITIES_DIR, `${nameSanitized}.json`)
+
+        if (!entityExists) {
+          await this.ghostService
+            .forBot(botId)
+            .upsertFile(ENTITIES_DIR, `${nameSanitized}.json`, JSON.stringify(entity, undefined, 2))
+
+          this.logger.forBot(botId).debug(`Initialized custom pattern entity: ${entity.name}`)
+        }
+      }
+    } catch (err) {
+      this.logger.forBot(botId).attachError(err).warn('Failed to initialize custom pattern entities')
     }
   }
 
