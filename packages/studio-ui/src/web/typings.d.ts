@@ -34,6 +34,8 @@ declare global {
     BP_STORAGE: BPStorage
     USE_SESSION_STORAGE: boolean
     USE_ONEFLOW: boolean
+    USE_JWT_COOKIES: boolean
+    WS_URL: string
     botpress: {
       [moduleName: string]: any
     }

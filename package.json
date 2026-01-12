@@ -1,6 +1,6 @@
 {
   "name": "@botpress/studio",
-  "version": "0.0.92",
+  "version": "0.0.94",
   "description": "Create your virtual assistants",
   "repository": "https://github.com/Suyog47/MBPStudio.git",
   "author": "Botpress, Inc.",
@@ -63,5 +63,8 @@
   "engines": {
     "node": "12.18"
   },
-  "packageManager": "yarn@3.1.1"
+  "packageManager": "yarn@3.1.1",
+  "dependencies": {
+    "crypto-js": "^4.2.0"
+  }
 }

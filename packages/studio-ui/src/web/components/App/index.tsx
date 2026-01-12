@@ -13,8 +13,10 @@ import {
 } from '~/actions'
 import { authEvents, setToken } from '~/util/Auth'
 import EventBus from '~/util/EventBus'
+import { secureLocalStorage } from '~/utils/secureStorage'
 
 import Routes, { history } from '../Routes'
+import { WebSocketWrapper } from '../WebSocketWrapper'
 
 interface Props {
   fetchModules: () => void
@@ -25,9 +27,25 @@ interface Props {
   fetchUser: () => void
   handleReceiveFlowsModification: (modifications: any) => void
   user: any
+  bot: any
 }
 
 class App extends Component<Props> {
+  /**
+   * Get user email from encrypted localStorage formData
+   * This is used as a fallback when Redux user state is not yet available
+   */
+  private getUserEmailFromStorage() {
+    const userData = secureLocalStorage.getItem('userData')
+    let parsedUserData: any = null
+    try {
+      parsedUserData = userData ? JSON.parse(userData) : null
+    } catch (e) {
+      parsedUserData = null
+    }
+    return parsedUserData?.email || null
+  }
+
   fetchData = () => {
     this.props.getModuleTranslations()
     this.props.fetchBotInformation()
@@ -97,12 +115,49 @@ class App extends Component<Props> {
   }
 
   render() {
+    // WebSocket URL - configured via environment variable
+    const WEBSOCKET_URL = process.env.REACT_APP_WEBSOCKET_URL || 'ws://localhost:8000'
+
+    // Get userId with fallback priority:
+    // 1. Redux user state (logged in user)
+    // 2. Encrypted localStorage formData (saved email)
+    // 3. Bot owner from config
+    const userIdFromStorage = this.getUserEmailFromStorage()
+    const userId = userIdFromStorage
+
     return (
       <Fragment>
         {!window.IS_STANDALONE && (
           <TokenRefresher getAxiosClient={() => axios} onRefreshCompleted={(token) => setToken(token)} />
         )}
-        <Routes />
+        <WebSocketWrapper
+          url={WEBSOCKET_URL}
+          enabled={true}
+          userId={userId}
+          enableDevToolsProtection={true}
+          reconnectAttempts={5}
+          reconnectInterval={3000}
+          onConnect={() => {
+            // WebSocket connected to xMati Studio
+          }}
+          onDisconnect={() => {
+            // WebSocket disconnected from xMati Studio
+          }}
+          onError={(error) => {
+            // Handle WebSocket errors
+          }}
+          onMessage={(event) => {
+            try {
+              const data = JSON.parse(event.data)
+              // Handle WebSocket messages here
+              // You can dispatch Redux actions or handle events based on message type
+            } catch (error) {
+              // Handle non-JSON messages
+            }
+          }}
+        >
+          <Routes />
+        </WebSocketWrapper>
       </Fragment>
     )
   }
@@ -119,7 +174,8 @@ const mapDispatchToProps = {
 }
 
 const mapStateToProps = (state) => ({
-  user: state.user
+  user: state.user,
+  bot: state.bot
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

@@ -78,7 +78,8 @@ const webConfig = {
     }),
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: isProduction ? JSON.stringify('production') : JSON.stringify('development')
+        NODE_ENV: isProduction ? JSON.stringify('production') : JSON.stringify('development'),
+        REACT_APP_WEBSOCKET_URL: JSON.stringify(process.env.REACT_APP_WEBSOCKET_URL)
       }
     }),
     new CleanWebpackPlugin(['public']),
