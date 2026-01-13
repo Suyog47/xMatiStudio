@@ -213,7 +213,7 @@ class ConfigView extends Component<Props, State> {
           this.props.fetchBotInformation()
         }
 
-        this.sendEmail()
+        void this.sendEmail()
       } else {
         this.setState({ error: undefined, isSaving: false })
       }
@@ -225,7 +225,7 @@ class ConfigView extends Component<Props, State> {
   sendEmail = async () => {
     try {
       const savedFormData = JSON.parse(localStorage.getItem('formData') || '{}')
-      const result = await fetch(`https://www.app.xmati.ai/apis/user-auth`, {
+      const result = await fetch('https://www.app.xmati.ai/apis/user-auth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

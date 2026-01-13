@@ -1,13 +1,17 @@
+import axios from 'axios'
+import { auth } from 'botpress/shared'
+import { on } from 'events'
 import React, { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react'
+import { secureSessionStorage } from '../../utils/secureStorage'
 import { useDevToolsProtection } from './hooks/useDevToolsProtection'
+import { useTabManager } from './hooks/useTabManager'
+import BlockedAccountScreen from './screens/BlockedAccountScreen'
+import MaintenanceScreen from './screens/MaintenanceScreen'
 import { debug } from './utils/debug'
 
 interface WebSocketContextType {
   socket: WebSocket | null
-  isConnected: boolean
   sendMessage: (message: string | object) => void
-  lastMessage: MessageEvent | null
-  connectionStatus: 'connecting' | 'connected' | 'disconnected' | 'error'
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined)
@@ -34,21 +38,28 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
   enabled = true,
   userId,
   enableDevToolsProtection = false,
-  onMessage,
   onConnect,
-  onDisconnect,
-  onError
 }) => {
   const [isConnected, setIsConnected] = useState(false)
-  const [lastMessage, setLastMessage] = useState<MessageEvent | null>(null)
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>(
-    'disconnected'
-  )
+
+  const [showBlockedScreen, setShowBlockedScreen] = useState(() => {
+    const savedBlockedState = secureSessionStorage.getItem('accountBlocked')
+    return savedBlockedState ? JSON.parse(savedBlockedState).isBlocked : false
+  })
+
+  const [showMaintenanceScreen, setShowMaintenanceScreen] = useState(() => {
+    const savedMaintenanceState = secureSessionStorage.getItem('maintenance')
+    return savedMaintenanceState ? JSON.parse(savedMaintenanceState).status : false
+  })
+
   const socketRef = useRef<WebSocket | null>(null)
   const reconnectCountRef = useRef(0)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>()
   const isConnectingRef = useRef(false)
   const hasRegisteredRef = useRef(false)
+
+  // Use tab manager to detect if this is the active tab
+  const isActiveTab = useTabManager()
 
   // Enable DevTools protection if requested
   if (enableDevToolsProtection) {
@@ -69,6 +80,12 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
   }
 
   const connect = () => {
+    // Only connect if this is the active tab
+    if (!isActiveTab) {
+      debug.log('[WebSocket] Not the active tab, skipping connection')
+      return
+    }
+
     // Prevent multiple simultaneous connection attempts
     if (!enabled || isConnectingRef.current || socketRef.current?.readyState === WebSocket.OPEN) {
       if (!enabled) {
@@ -94,13 +111,14 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
     debug.log('[WebSocket] Attempting to connect to:', url)
 
     try {
-      setConnectionStatus('connecting')
       const ws = new WebSocket(url)
 
       ws.onopen = () => {
+        // Unblock on successful connection
+        onMaintenanceUpdate(false)
+
         debug.log('[WebSocket] ✅ Connection established successfully')
         setIsConnected(true)
-        setConnectionStatus('connected')
         reconnectCountRef.current = 0
         isConnectingRef.current = false
 
@@ -114,45 +132,80 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
         onConnect?.()
       }
 
+      // Logout handler - clears auth and redirects to admin
+      const onLogout = () => {
+        debug.log('[WebSocket] 🚪 Logging out user...')
+        auth.logout(() => axios)
+      }
+
+      // Block status handler - shows blocked account screen
+      const onBlockStatus = (status: string) => {
+        setShowBlockedScreen(status === 'Blocked')
+        secureSessionStorage.setItem('accountBlocked', JSON.stringify({
+          isBlocked: status === 'Blocked',
+        }))
+      }
+
+      // Maintenance update handler - shows maintenance screen
+      const onMaintenanceUpdate = (status: boolean) => {
+        setShowMaintenanceScreen(status)
+        secureSessionStorage.setItem('maintenance', JSON.stringify({ status }))
+      }
+
       ws.onmessage = (event) => {
         debug.log('[WebSocket] 📨 Message received:', event.data)
-        setLastMessage(event)
-        onMessage?.(event)
+        const data = JSON.parse(event.data)
+
+        switch (data.type) {
+          case 'REGISTER_SUCCESS':
+            break
+          case 'DUPLICATE_SESSION':
+            alert('You or Someone else is already logged in from another tab or device. Please close the other session and try again.')
+            onLogout()
+            break
+          case 'FORCE_LOGOUT':
+            if (data.alert) {
+              alert(data.message || 'You have been logged out by the server.')
+            }
+            onLogout()
+            break
+          case 'BLOCK_STATUS':
+            onBlockStatus(data.message)
+            break
+          case 'MAINTENANCE_STATUS':
+            onMaintenanceUpdate(data.message)
+            break
+          case 'error':
+            alert(`WebSocket error: ${data.message || 'Unknown error'}`)
+            onLogout()
+            break
+          default:
+            alert(`[WebSocket] Unknown message type: ${data.type}`)
+            onLogout()
+            break
+        }
       }
 
       ws.onerror = (error) => {
-        debug.error('[WebSocket] ❌ Error occurred:', error)
-        setConnectionStatus('error')
         isConnectingRef.current = false
-        onError?.(error)
+        // On error, optimistically block the user with maintenance screen
+        onMaintenanceUpdate(true)
       }
 
+      let reconnectTimeout: NodeJS.Timeout | null = null
       ws.onclose = () => {
         debug.log('[WebSocket] 🔌 Connection closed')
         setIsConnected(false)
-        setConnectionStatus('disconnected')
         isConnectingRef.current = false
         hasRegisteredRef.current = false // Reset registration status on disconnect
-        onDisconnect?.()
 
         // Attempt to reconnect
-        if (enabled && reconnectCountRef.current < reconnectAttempts) {
-          debug.log(
-            `[WebSocket] 🔄 Scheduling reconnection attempt ${reconnectCountRef.current + 1}/${reconnectAttempts} in ${reconnectInterval}ms`
-          )
-          reconnectTimeoutRef.current = setTimeout(() => {
-            reconnectCountRef.current += 1
-            connect()
-          }, reconnectInterval)
-        } else if (reconnectCountRef.current >= reconnectAttempts) {
-          debug.warn('[WebSocket] ⛔ Max reconnection attempts reached. Giving up.')
-        }
+        reconnectTimeout = setTimeout(connect, 1000)
       }
 
       socketRef.current = ws
     } catch (error) {
       debug.error('[WebSocket] ❌ Exception during connection:', error)
-      setConnectionStatus('error')
       isConnectingRef.current = false
     }
   }
@@ -196,7 +249,29 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
       reconnectCountRef.current = 0
       debug.log('[WebSocket] Cleanup complete')
     }
-  }, []) // Empty dependency array - only run once on mount
+  }, [isActiveTab])
+
+  // Monitor tab status and connect/disconnect accordingly
+  useEffect(() => {
+    debug.log('[WebSocket] Tab status changed. Is active tab:', isActiveTab)
+
+    if (isActiveTab && enabled) {
+      // This is now the active tab, connect if not already connected
+      if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
+        debug.log('[WebSocket] Active tab detected, connecting...')
+        connect()
+      }
+    } else if (!isActiveTab) {
+      // This is not the active tab, disconnect if connected
+      if (socketRef.current) {
+        debug.log('[WebSocket] Inactive tab detected, disconnecting...')
+        socketRef.current.close()
+        socketRef.current = null
+        setIsConnected(false)
+        hasRegisteredRef.current = false
+      }
+    }
+  }, [isActiveTab, enabled])
 
   // Watch for userId changes and send registration when available
   // useEffect(() => {
@@ -215,13 +290,16 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
 
   const contextValue: WebSocketContextType = {
     socket: socketRef.current,
-    isConnected,
     sendMessage,
-    lastMessage,
-    connectionStatus
   }
 
-  return <WebSocketContext.Provider value={contextValue}>{children}</WebSocketContext.Provider>
+  return (
+    <WebSocketContext.Provider value={contextValue}>
+      {children}
+      {showBlockedScreen && <BlockedAccountScreen />}
+      {showMaintenanceScreen && <MaintenanceScreen />}
+    </WebSocketContext.Provider>
+  )
 }
 
 export const useWebSocket = (): WebSocketContextType => {
