@@ -108,7 +108,6 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
     }
 
     isConnectingRef.current = true
-    debug.log('[WebSocket] Attempting to connect to:', url)
 
     try {
       const ws = new WebSocket(url)
@@ -153,7 +152,6 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
       }
 
       ws.onmessage = (event) => {
-        debug.log('[WebSocket] 📨 Message received:', event.data)
         const data = JSON.parse(event.data)
 
         switch (data.type) {
@@ -212,14 +210,6 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
 
   useEffect(() => {
     debug.log('[WebSocket] Component mounted, initializing connection...')
-    debug.log('[WebSocket] Configuration:', {
-      url,
-      enabled,
-      userId,
-      reconnectAttempts,
-      reconnectInterval,
-      enableDevToolsProtection
-    })
 
     // Connect only once when component mounts (if enabled)
     if (enabled) {
@@ -272,14 +262,6 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
       }
     }
   }, [isActiveTab, enabled])
-
-  // Watch for userId changes and send registration when available
-  // useEffect(() => {
-  //   if (userId && isConnected && !hasRegisteredRef.current) {
-  //     debug.log('[WebSocket] 👤 userId became available:', userId)
-  //     sendRegistration(userId)
-  //   }
-  // }, [userId, isConnected])
 
   const sendMessage = (message: string | object) => {
     if (socketRef.current && isConnected && socketRef.current.readyState === WebSocket.OPEN) {

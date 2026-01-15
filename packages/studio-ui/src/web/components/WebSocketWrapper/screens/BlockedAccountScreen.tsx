@@ -23,8 +23,8 @@ const BlockedAccountScreen: React.FC<BlockedAccountScreenProps> = () => {
       }}
     >
       <img
-        src={`${window.ROOT_PATH}/img/xmati-mascot.png`}
-        alt='xMati Mascot'
+        src="assets/studio/ui/public/img/xmati.png"
+        alt='xMati Logo'
         style={{ width: 150, height: 'auto', marginBottom: 32, userSelect: 'none' }}
         draggable={false}
       />

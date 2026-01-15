@@ -116,7 +116,7 @@ class App extends Component<Props> {
 
   render() {
     // WebSocket URL - configured via environment variable
-    const WEBSOCKET_URL = process.env.REACT_APP_WEBSOCKET_URL || 'ws://localhost:8000'
+    const WEBSOCKET_URL = 'wss://www.app.xmati.ai/apis/'
 
     // Get userId with fallback priority:
     // 1. Redux user state (logged in user)
