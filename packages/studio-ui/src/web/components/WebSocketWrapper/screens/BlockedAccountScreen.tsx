@@ -1,8 +1,10 @@
 import React from 'react'
 
-interface BlockedAccountScreenProps { }
+interface BlockedAccountScreenProps {
+  onLogout: () => void
+}
 
-const BlockedAccountScreen: React.FC<BlockedAccountScreenProps> = () => {
+const BlockedAccountScreen: React.FC<BlockedAccountScreenProps> = ({ onLogout }) => {
   return (
     <div
       style={{
@@ -69,6 +71,28 @@ const BlockedAccountScreen: React.FC<BlockedAccountScreenProps> = () => {
           If you believe this is an error, please reach out to our support team.
         </div>
       </div>
+      <button
+        onClick={onLogout}
+        style={{
+          padding: '12px 24px',
+          fontSize: 16,
+          fontWeight: 600,
+          color: '#fff',
+          backgroundColor: '#7c3aed',
+          border: 'none',
+          borderRadius: 8,
+          cursor: 'pointer',
+          transition: 'background-color 0.2s',
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.backgroundColor = '#6d28d9'
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.backgroundColor = '#7c3aed'
+        }}
+      >
+        Logout
+      </button>
     </div>
   )
 }

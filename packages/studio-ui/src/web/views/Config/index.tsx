@@ -13,6 +13,7 @@ import { fetchBotInformation } from '~/actions'
 import { Container, SidePanel, SidePanelSection, ItemList } from '~/components/Shared/Interface'
 import { Item } from '~/components/Shared/Interface/typings'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
+import { secureLocalStorage } from '../../utils/secureStorage'
 
 import style from './style.scss'
 
@@ -213,27 +214,36 @@ class ConfigView extends Component<Props, State> {
           this.props.fetchBotInformation()
         }
 
-        void this.sendEmail()
+        void this.sendLogsAndEmail('SUCCESS', `${this.initialFormState.name} bot name updated successfully, new name: ${bot.name} and description: ${bot.description}`)
       } else {
+        void this.sendLogsAndEmail('FAILED', 'Bot updation cancelled by user')
         this.setState({ error: undefined, isSaving: false })
       }
     } catch (err) {
+      void this.sendLogsAndEmail('FAILED', `${err.response?.data}`)
       this.setState({ error: err.response?.data, isSaving: false })
     }
   }
 
-  sendEmail = async () => {
+  private getUserEmailFromStorage() {
+    const userData = secureLocalStorage.getItem('userData')
+    let parsedUserData: any = null
     try {
-      const savedFormData = JSON.parse(localStorage.getItem('formData') || '{}')
-      const result = await fetch('https://www.app.xmati.ai/apis/user-auth', {
+      parsedUserData = userData ? JSON.parse(userData) : null
+    } catch (e) {
+      parsedUserData = null
+    }
+    return parsedUserData?.email || null
+  }
+
+  sendLogsAndEmail = async (status, context) => {
+    try {
+      const result = await fetch('https://www.app.xmati.ai/apis/bot-updation-log', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          data: { fullName: savedFormData.fullName, email: savedFormData.email, botName: this.state.name, botDescription: this.state.description },
-          from: 'updateBot'
-        }),
+        body: JSON.stringify({ email: this.getUserEmailFromStorage(), oldName: this.initialFormState.name, newName: this.state.name, botDescription: this.state.description, status, context }),
       })
 
       return result.json()

@@ -2,7 +2,7 @@ import axios from 'axios'
 import { auth } from 'botpress/shared'
 import { on } from 'events'
 import React, { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react'
-import { secureSessionStorage } from '../../utils/secureStorage'
+import { secureSessionStorage, secureLocalStorage } from '../../utils/secureStorage'
 import { useDevToolsProtection } from './hooks/useDevToolsProtection'
 import { useTabManager } from './hooks/useTabManager'
 import BlockedAccountScreen from './screens/BlockedAccountScreen'
@@ -33,8 +33,6 @@ interface WebSocketWrapperProps {
 export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
   url,
   children,
-  reconnectInterval = 3000,
-  reconnectAttempts = 5,
   enabled = true,
   userId,
   enableDevToolsProtection = false,
@@ -57,6 +55,8 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>()
   const isConnectingRef = useRef(false)
   const hasRegisteredRef = useRef(false)
+  const reconnectAttemptsRef = useRef(0)
+  const MAX_RECONNECT_ATTEMPTS = 10
 
   // Use tab manager to detect if this is the active tab
   const isActiveTab = useTabManager()
@@ -64,6 +64,14 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
   // Enable DevTools protection if requested
   if (enableDevToolsProtection) {
     useDevToolsProtection()
+  }
+
+  // Logout handler - clears auth and redirects to admin
+  const onLogout = () => {
+    debug.log('[WebSocket] 🚪 Logging out user...')
+    secureSessionStorage.clear()
+    secureLocalStorage.clear()
+    auth.logout(() => axios)
   }
 
   // Centralized registration function
@@ -113,6 +121,9 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
       const ws = new WebSocket(url)
 
       ws.onopen = () => {
+        // Reset reconnect attempts on successful connection
+        reconnectAttemptsRef.current = 0
+
         // Unblock on successful connection
         onMaintenanceUpdate(false)
 
@@ -129,12 +140,6 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
         }
 
         onConnect?.()
-      }
-
-      // Logout handler - clears auth and redirects to admin
-      const onLogout = () => {
-        debug.log('[WebSocket] 🚪 Logging out user...')
-        auth.logout(() => axios)
       }
 
       // Block status handler - shows blocked account screen
@@ -185,9 +190,19 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
       }
 
       ws.onerror = (error) => {
+        // Increment reconnect attempts on error
+        reconnectAttemptsRef.current += 1
+
         isConnectingRef.current = false
         // On error, optimistically block the user with maintenance screen
         onMaintenanceUpdate(true)
+
+        // Check if max reconnect attempts reached
+        if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
+          console.error('[WebSocket] Max reconnect attempts reached. Logging out.')
+          alert('Unable to maintain connection to the server. Please log in again.')
+          onLogout()
+        }
       }
 
       let reconnectTimeout: NodeJS.Timeout | null = null
@@ -241,7 +256,7 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
     }
   }, [isActiveTab])
 
-  // Monitor tab status and connect/disconnect accordingly
+  // Tab status check
   useEffect(() => {
     debug.log('[WebSocket] Tab status changed. Is active tab:', isActiveTab)
 
@@ -278,7 +293,7 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
   return (
     <WebSocketContext.Provider value={contextValue}>
       {children}
-      {showBlockedScreen && <BlockedAccountScreen />}
+      {showBlockedScreen && <BlockedAccountScreen onLogout={onLogout} />}
       {showMaintenanceScreen && <MaintenanceScreen />}
     </WebSocketContext.Provider>
   )
