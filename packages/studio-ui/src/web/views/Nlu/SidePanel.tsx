@@ -73,7 +73,7 @@ export const NLUSidePanel: FC<Props> = ({
   }
 
   return (
-    <SidePanel>
+    <SidePanel style={{ backgroundColor: '#E2F2FF' }}>
       <MainLayout.Toolbar
         tabChange={(tab) => setCurrentTab(tab)}
         tabs={tabs}

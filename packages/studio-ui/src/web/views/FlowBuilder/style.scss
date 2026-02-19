@@ -10,6 +10,15 @@
   width: 100%;
 }
 
+.flowWrapper {
+  height: 100%;
+  width: 100%;
+  
+  :global(.toolbar) {
+    background: #E2F2FF !important;
+  }
+}
+
 .diagram :global(.srd-diagram) {
   height: 100%;
   background: linear-gradient(90deg, var(--bg) 10px, transparent 1%) center,

@@ -155,8 +155,9 @@ const FlowBuilder = (props: Props) => {
   }
 
   return (
-    <MainContainer keyHandlers={keyHandlers}>
-      <SidePanel
+    <div className={style.flowWrapper}>
+      <MainContainer keyHandlers={keyHandlers}>
+        <SidePanel
         onDeleteSelectedElements={() => diagram?.deleteSelectedElements()}
         readOnly={readOnly}
         mutexInfo={mutex}
@@ -187,6 +188,7 @@ const FlowBuilder = (props: Props) => {
 
       <SkillsBuilder />
     </MainContainer>
+    </div>
   )
 }
 

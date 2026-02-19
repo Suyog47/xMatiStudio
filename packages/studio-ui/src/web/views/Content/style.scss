@@ -3,6 +3,18 @@
   height: 100%;
 }
 
+.contentMain {
+  background-color: white;
+  flex: 1;
+  height: 100%;
+}
+
+.contentSidebar {
+  :global(.sidePanel_section) {
+    background: white !important;
+  }
+}
+
 .missingTranslation {
   color: red;
 }

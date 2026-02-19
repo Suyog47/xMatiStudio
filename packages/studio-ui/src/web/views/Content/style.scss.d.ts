@@ -5,6 +5,8 @@ interface CssExports {
   'centered': string;
   'content': string;
   'contentListWrapper': string;
+  'contentMain': string;
+  'contentSidebar': string;
   'imagePreview': string;
   'missingTranslation': string;
   'modal': string;

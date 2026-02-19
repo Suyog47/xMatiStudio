@@ -192,22 +192,24 @@ class ContentView extends Component<Props, State> {
           handleAdd={this.handleCreateNew}
           handleCategorySelected={this.handleCategorySelected}
         />
-        <List
-          readOnly={!this.canEdit || !categoriesRegistered.length}
-          count={
-            this.state.selectedId === 'all'
-              ? _.sumBy(categoriesRegistered, 'count') || 0
-              : _.find(categoriesRegistered, { id: this.state.selectedId }).count
-          }
-          className={style.contentListWrapper}
-          contentItems={categoriesRegistered.length ? this.props.contentItems ?? [] : []}
-          handleRefresh={this.handleRefresh}
-          handleEdit={this.handleModalShowForEdit}
-          handleDeleteSelected={this.handleDeleteSelected}
-          handleClone={this.handleClone}
-          handleSearch={this.handleSearch}
-          refreshCategories={this.props.fetchContentCategories}
-        />
+        <div className={style.contentMain}>
+          <List
+            readOnly={!this.canEdit || !categoriesRegistered.length}
+            count={
+              this.state.selectedId === 'all'
+                ? _.sumBy(categoriesRegistered, 'count') || 0
+                : _.find(categoriesRegistered, { id: this.state.selectedId }).count
+            }
+            className={style.contentListWrapper}
+            contentItems={categoriesRegistered.length ? this.props.contentItems ?? [] : []}
+            handleRefresh={this.handleRefresh}
+            handleEdit={this.handleModalShowForEdit}
+            handleDeleteSelected={this.handleDeleteSelected}
+            handleClone={this.handleClone}
+            handleSearch={this.handleSearch}
+            refreshCategories={this.props.fetchContentCategories}
+          />
+        </div>
         {this.canEdit && (
           <CreateOrEditModal
             show={this.state.showModal}

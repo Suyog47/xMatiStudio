@@ -6,6 +6,8 @@ import React, { Component } from 'react'
 import { ItemList, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
 import { SectionAction } from '~/components/Shared/Interface/typings'
 
+import style from './style.scss'
+
 export default class SidebarView extends Component<Props> {
   CATEGORY_ALL = {
     id: 'all',
@@ -35,13 +37,13 @@ export default class SidebarView extends Component<Props> {
 
     const actions: SectionAction[] = contentTypeActions.length
       ? [
-          {
-            tooltip: lang.tr('studio.content.sideBar.createNewContent'),
-            id: 'btn-add-content',
-            icon: 'add' as IconName,
-            items: contentTypeActions
-          }
-        ]
+        {
+          tooltip: lang.tr('studio.content.sideBar.createNewContent'),
+          id: 'btn-add-content',
+          icon: 'add' as IconName,
+          items: contentTypeActions
+        }
+      ]
       : []
 
     const contentTypes = [this.CATEGORY_ALL, ...registered].map((cat) => {
@@ -81,13 +83,15 @@ export default class SidebarView extends Component<Props> {
     })
 
     return (
-      <SidePanel>
-        <SidePanelSection label={lang.tr('studio.content.sideBar.filterByType')} actions={actions}>
-          {registered.length > 0 && (
-            <ItemList items={contentTypes} onElementClicked={(el) => this.props.handleCategorySelected(el.value.id)} />
-          )}
-          {unregistered.length > 0 && <ItemList items={contentTypesUnregistered} />}
-        </SidePanelSection>
+      <SidePanel style={{ backgroundColor: '#E2F2FF' }}>
+        <div className={style.contentSidebar}>
+          <SidePanelSection label={lang.tr('studio.content.sideBar.filterByType')} actions={actions}>
+            {registered.length > 0 && (
+              <ItemList items={contentTypes} onElementClicked={(el) => this.props.handleCategorySelected(el.value.id)} />
+            )}
+            {unregistered.length > 0 && <ItemList items={contentTypesUnregistered} />}
+          </SidePanelSection>
+        </div>
       </SidePanel>
     )
   }

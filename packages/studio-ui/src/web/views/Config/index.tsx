@@ -351,7 +351,7 @@ class ConfigView extends Component<Props, State> {
 
     return (
       <Container keyHandlers={keyHandlers} keyMap={keyMap}>
-        <SidePanel>
+        <SidePanel style={{ backgroundColor: '#E2F2FF' }}>
           <SidePanelSection label={lang.tr('config.botConfiguration')}>
             <ItemList items={this.state.items} onElementClicked={this.handleElementClicked} />
           </SidePanelSection>

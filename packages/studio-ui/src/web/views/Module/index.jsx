@@ -1,11 +1,11 @@
-import React from 'react'
+import { lang } from 'botpress/shared'
+import _ from 'lodash'
 import PropTypes from 'prop-types'
+import React from 'react'
 import { connect } from 'react-redux'
 
-import _ from 'lodash'
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
-import { lang } from 'botpress/shared'
 
 class ModuleView extends React.Component {
   static contextTypes = {

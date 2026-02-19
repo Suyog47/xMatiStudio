@@ -3,6 +3,7 @@
 interface CssExports {
   'container': string;
   'diagram': string;
+  'flowWrapper': string;
   'wrapper': string;
 }
 declare var cssExports: CssExports;
