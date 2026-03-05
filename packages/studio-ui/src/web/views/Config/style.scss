@@ -2,6 +2,14 @@
   margin: 0 24px;
   background-color: white;
   height: 100%;
+
+  :global(.itemList .item) {
+    border-bottom: none !important;
+
+    &:first-child {
+      border-top: none !important;
+    }
+  }
 }
 
 .title {

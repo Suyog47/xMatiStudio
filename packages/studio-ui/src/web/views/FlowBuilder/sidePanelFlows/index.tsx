@@ -69,7 +69,7 @@ const SidePanelContent: FC<Props> = (props) => {
   }
 
   return (
-    <SidePanel>
+    <SidePanel style={{ backgroundColor: '#E2F2FF' }}>
       <SidePanelSection
         label={lang.tr('flows')}
         actions={!props.readOnly && props.permissions.includes('create') && [createFlowAction]}
