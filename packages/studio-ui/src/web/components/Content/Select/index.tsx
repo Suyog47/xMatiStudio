@@ -210,7 +210,16 @@ class SelectContent extends Component<Props, State> {
           {categories
             .filter((cat) => !cat.hidden)
             .map((category, i) => {
-              if (category.title.toLowerCase() == 'text' || category.title.toLowerCase() == 'module.builtin.types.dropdown.title') {
+              const titleLower = category.title.toLowerCase()
+              const idLower = category.id.toLowerCase()
+
+              // Check both title and ID for allowed content types
+              const allowedTypes = ['text', 'video', 'image', 'audio', 'dropdown']
+              const isAllowed = allowedTypes.some(type =>
+                titleLower.includes(type) || idLower.includes(type)
+              )
+
+              if (isAllowed) {
                 return (
                   <a
                     key={i}
