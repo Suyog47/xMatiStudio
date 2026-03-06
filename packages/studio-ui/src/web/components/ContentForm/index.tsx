@@ -90,14 +90,15 @@ const widgets: Widgets = {
   CheckboxWidget: CustomCheckboxWidget
 }
 
-// TODO: Remove this once audio, video, file and location content-types are
-// support on roughly half the channels
+// Modern channels support for media types
+// Most major channels now support images, audio, and video
 const CustomDescriptionField = ({ description, id, formContext }: FieldProps) => {
   const mapping = {
-    audio: ['channel-web', 'channel-vonage'],
-    video: ['channel-web', 'channel-vonage'],
-    file: ['channel-web', 'channel-vonage'],
-    location: ['channel-vonage']
+    audio: ['channel-web', 'channel-vonage', 'channel-telegram', 'channel-messenger', 'channel-slack'],
+    video: ['channel-web', 'channel-vonage', 'channel-telegram', 'channel-messenger'],
+    image: ['channel-web', 'channel-vonage', 'channel-telegram', 'channel-messenger', 'channel-slack', 'channel-teams'],
+    file: ['channel-web', 'channel-vonage', 'channel-telegram', 'channel-messenger', 'channel-slack'],
+    location: ['channel-vonage', 'channel-telegram', 'channel-messenger']
   }
 
   if (id === 'root__description' && Object.keys(mapping).includes(formContext.subtype)) {
