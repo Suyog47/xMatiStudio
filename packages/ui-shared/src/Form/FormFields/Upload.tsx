@@ -1,4 +1,4 @@
-import { FileInput, Icon } from '@blueprintjs/core'
+import { FileInput, Icon, ProgressBar } from '@blueprintjs/core'
 import React, { FC, Fragment, useReducer } from 'react'
 import FileDisplay from '~/FileDisplay'
 
@@ -10,20 +10,31 @@ const Upload: FC<UploadFieldProps> = (props) => {
     if (action.type === 'uploadStart') {
       return {
         ...state,
-        error: null
+        error: null,
+        isUploading: true,
+        uploadProgress: 0
+      }
+    } else if (action.type === 'uploadProgress') {
+      return {
+        ...state,
+        uploadProgress: action.data.progress
       }
     } else if (action.type === 'deleteFile') {
       props.onChange?.(undefined)
       return {
         ...state,
-        error: null
+        error: null,
+        isUploading: false,
+        uploadProgress: 0
       }
     } else if (action.type === 'uploadError') {
       const { error } = action.data
 
       return {
         ...state,
-        error
+        error,
+        isUploading: false,
+        uploadProgress: 0
       }
     } else if (action.type === 'uploadSuccess') {
       const { url } = action.data
@@ -31,7 +42,9 @@ const Upload: FC<UploadFieldProps> = (props) => {
       props.onChange?.(url)
       return {
         ...state,
-        error: null
+        error: null,
+        isUploading: false,
+        uploadProgress: 100
       }
     } else {
       throw new Error("That action type isn't supported.")
@@ -39,10 +52,12 @@ const Upload: FC<UploadFieldProps> = (props) => {
   }
 
   const [state, dispatch] = useReducer(uploadReducer, {
-    error: null
+    error: null,
+    isUploading: false,
+    uploadProgress: 0
   })
 
-  const { error } = state
+  const { error, isUploading, uploadProgress } = state
 
   const deleteFile = () => {
     dispatch({ type: 'deleteFile' })
@@ -53,14 +68,28 @@ const Upload: FC<UploadFieldProps> = (props) => {
     data.append('file', event.target.files[0])
 
     dispatch({ type: 'uploadStart' })
+
+    // Simulate progress for better UX (can be replaced with actual progress tracking if backend supports it)
+    const progressInterval = setInterval(() => {
+      dispatch({ type: 'uploadProgress', data: { progress: Math.min(uploadProgress + 10, 90) } })
+    }, 200)
+
     await props.axios
-      .post(props.customPath ? props.customPath : 'media', data, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .post(props.customPath ? props.customPath : 'media', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          dispatch({ type: 'uploadProgress', data: { progress: percentCompleted } })
+        }
+      })
       .then((response) => {
+        clearInterval(progressInterval)
         const url: string = response.data.url
 
         dispatch({ type: 'uploadSuccess', data: { url } })
       })
       .catch((e) => {
+        clearInterval(progressInterval)
         dispatch({ type: 'uploadError', data: { error: e.message } })
       })
   }
@@ -74,7 +103,7 @@ const Upload: FC<UploadFieldProps> = (props) => {
       // e.g. video/*, audio/*, ...
       return `${type}/*`
     } else {
-      ;('*')
+      ; ('*')
     }
   }
 
@@ -86,11 +115,25 @@ const Upload: FC<UploadFieldProps> = (props) => {
           <FileInput
             text={<Icon icon="upload" />}
             large
+            disabled={isUploading}
             inputProps={{
               accept: allowedMimeTypes(),
               onChange: startUpload
             }}
           />
+          {isUploading && (
+            <div style={{ marginTop: '10px' }}>
+              <ProgressBar
+                value={uploadProgress / 100}
+                intent="primary"
+                stripes={uploadProgress < 100}
+                animate={uploadProgress < 100}
+              />
+              <p style={{ fontSize: '12px', marginTop: '5px', color: '#5c7080' }}>
+                Uploading... {uploadProgress}%
+              </p>
+            </div>
+          )}
           {error && <p className={sharedStyle.fieldError}>{error}</p>}
         </Fragment>
       )}

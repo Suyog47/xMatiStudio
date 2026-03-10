@@ -1,4 +1,4 @@
-import { Button, Callout, FileInput, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
+import { Button, Callout, FileInput, FormGroup, InputGroup, Intent, ProgressBar, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotConfig } from 'botpress/sdk'
 import { confirmDialog, lang, toast } from 'botpress/shared'
@@ -47,6 +47,9 @@ interface StateVars {
   isSaving: boolean
   items: Item[]
   activeTab?: string
+  isUploadingAvatar?: boolean
+  isUploadingCover?: boolean
+  uploadProgress?: number
 }
 
 type State = StateBot & StateVars
@@ -106,7 +109,10 @@ class ConfigView extends Component<Props, State> {
     error: undefined,
     isSaving: false,
     items: this.sideBarItems,
-    activeTab: 'main'
+    activeTab: 'main',
+    isUploadingAvatar: false,
+    isUploadingCover: false,
+    uploadProgress: 0
   }
 
   async componentDidMount() {
@@ -318,15 +324,34 @@ class ConfigView extends Component<Props, State> {
       this.setState({ error: null })
     }
 
+    // Set uploading state based on which field is being uploaded
+    const isAvatarUpload = targetProp === 'avatarUrl'
+    this.setState({
+      [isAvatarUpload ? 'isUploadingAvatar' : 'isUploadingCover']: true,
+      uploadProgress: 0
+    } as any)
+
     try {
       const res = await axios.post(`studio/${this.props.bot.id}/media`, data, {
         ...axiosConfig,
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          this.setState({ uploadProgress: percentCompleted })
+        }
       })
       // @ts-ignore
-      this.setState({ [targetProp]: res.data.url })
+      this.setState({
+        [targetProp]: res.data.url,
+        [isAvatarUpload ? 'isUploadingAvatar' : 'isUploadingCover']: false,
+        uploadProgress: 100
+      })
     } catch (err) {
-      this.setState({ error: err })
+      this.setState({
+        error: err,
+        [isAvatarUpload ? 'isUploadingAvatar' : 'isUploadingCover']: false,
+        uploadProgress: 0
+      } as any)
     }
   }
 
@@ -466,6 +491,7 @@ class ConfigView extends Component<Props, State> {
                 <FormGroup label={lang.tr('config.botAvatar')} labelFor="avatar-url">
                   <FileInput
                     text={lang.tr('config.chooseFile')}
+                    disabled={this.state.isUploadingAvatar}
                     inputProps={{
                       id: 'avatar-url',
                       name: 'avatarUrl',
@@ -473,7 +499,20 @@ class ConfigView extends Component<Props, State> {
                       onChange: this.handleImageFileChanged
                     }}
                   />
-                  {this.state.avatarUrl !== this.initialFormState.avatarUrl && (
+                  {this.state.isUploadingAvatar && (
+                    <div style={{ marginTop: '10px' }}>
+                      <ProgressBar
+                        value={this.state.uploadProgress / 100}
+                        intent="primary"
+                        stripes={this.state.uploadProgress < 100}
+                        animate={this.state.uploadProgress < 100}
+                      />
+                      <p style={{ fontSize: '12px', marginTop: '5px', color: '#5c7080' }}>
+                        Uploading... {this.state.uploadProgress}%
+                      </p>
+                    </div>
+                  )}
+                  {this.state.avatarUrl !== this.initialFormState.avatarUrl && !this.state.isUploadingAvatar && (
                     <p className={style.configUploadSuccess}>{lang.tr('config.avatarUploadSuccess')}</p>
                   )}
                   {this.state.avatarUrl && (
@@ -483,6 +522,7 @@ class ConfigView extends Component<Props, State> {
                 <FormGroup label={lang.tr('config.coverPicture')} labelFor="cover-picture-url">
                   <FileInput
                     text={lang.tr('config.chooseFile')}
+                    disabled={this.state.isUploadingCover}
                     inputProps={{
                       id: 'cover-picture-url',
                       name: 'coverPictureUrl',
@@ -490,7 +530,20 @@ class ConfigView extends Component<Props, State> {
                       onChange: this.handleImageFileChanged
                     }}
                   />
-                  {this.state.coverPictureUrl !== this.initialFormState.coverPictureUrl && (
+                  {this.state.isUploadingCover && (
+                    <div style={{ marginTop: '10px' }}>
+                      <ProgressBar
+                        value={this.state.uploadProgress / 100}
+                        intent="primary"
+                        stripes={this.state.uploadProgress < 100}
+                        animate={this.state.uploadProgress < 100}
+                      />
+                      <p style={{ fontSize: '12px', marginTop: '5px', color: '#5c7080' }}>
+                        Uploading... {this.state.uploadProgress}%
+                      </p>
+                    </div>
+                  )}
+                  {this.state.coverPictureUrl !== this.initialFormState.coverPictureUrl && !this.state.isUploadingCover && (
                     <p className={style.configUploadSuccess}>{lang.tr('config.coverUploadSuccess')}</p>
                   )}
                   {this.state.coverPictureUrl && (

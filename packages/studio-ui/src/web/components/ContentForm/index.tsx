@@ -94,8 +94,8 @@ const widgets: Widgets = {
 // Most major channels now support images, audio, and video
 const CustomDescriptionField = ({ description, id, formContext }: FieldProps) => {
   const mapping = {
-    audio: ['channel-web', 'channel-vonage', 'channel-telegram', 'channel-messenger', 'channel-slack'],
-    video: ['channel-web', 'channel-vonage', 'channel-telegram', 'channel-messenger'],
+    audio: ['channel-web'],
+    video: ['channel-web'],
     image: ['channel-web', 'channel-vonage', 'channel-telegram', 'channel-messenger', 'channel-slack', 'channel-teams'],
     file: ['channel-web', 'channel-vonage', 'channel-telegram', 'channel-messenger', 'channel-slack'],
     location: ['channel-vonage', 'channel-telegram', 'channel-messenger']

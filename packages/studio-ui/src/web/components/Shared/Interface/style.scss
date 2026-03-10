@@ -15,27 +15,35 @@ $status-bar-height: 30px;
 }
 
 .container :global(.Resizer.vertical) {
-  width: 11px;
-  margin: 0 -5px;
-  border-left: 5px solid rgba(255, 255, 255, 0);
-  border-right: 5px solid rgba(255, 255, 255, 0);
-  box-sizing: border-box;
+  width: 0px;
+  margin: 0;
+  border: none;
   background: transparent;
-  opacity: 0.5;
+  opacity: 0;
   z-index: 1;
-  background-clip: padding-box;
-  cursor: col-resize;
+  cursor: default;
+  pointer-events: none;
 
   &:hover {
-    -webkit-transition: all 2s ease;
-    transition: all 2s ease;
-    border-left: 5px solid rgba(0, 0, 0, 0.2);
-    border-right: 5px solid rgba(0, 0, 0, 0.2);
+    border: none;
   }
 }
 
 .container :global(.SplitPane) {
   height: calc(100vh);
+  
+  > div {
+    border-left: none !important;
+    border-right: none !important;
+  }
+}
+
+.container :global(.Pane1),
+.container :global(.Pane2),
+.container :global(.Pane) {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .sidePanel {
