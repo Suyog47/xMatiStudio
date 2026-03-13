@@ -1,12 +1,13 @@
-import { Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Classes, Dialog, Icon, Position, Tooltip } from '@blueprintjs/core'
 import { IconSvgPaths16 } from '@blueprintjs/icons'
 import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment } from 'react'
+import React, { FC, Fragment, useState } from 'react'
 import { connect } from 'react-redux'
 import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom'
 import { RootReducer } from '~/reducers'
+import { hitlAccessStore } from '~/utils/token-store'
 
 import { AccessControl } from '../Shared/Utils'
 
@@ -62,6 +63,27 @@ const configItem = {
 }
 
 const Sidebar: FC<Props> = (props) => {
+  const [showHitlDialog, setShowHitlDialog] = useState(false)
+
+  const checkHitlAccess = (e: React.MouseEvent, moduleName: string) => {
+    if (moduleName === 'hitl' || moduleName === 'hitlnext') {
+      const hitlData = hitlAccessStore.get()
+
+      if (!hitlData || !hitlData.hasAccess) {
+        e.preventDefault()
+        setShowHitlDialog(true)
+
+        // Auto-close after 5 seconds
+        setTimeout(() => {
+          setShowHitlDialog(false)
+        }, 5000)
+
+        return false
+      }
+    }
+    return true
+  }
+
   const renderModuleItem = (module) => {
     if (module.name === 'code-editor' || module.name === 'misunderstood') {
       return null
@@ -91,7 +113,12 @@ const Sidebar: FC<Props> = (props) => {
               </div>
             }
           >
-            <NavLink to={path} title={module.menuText} activeClassName={style.active}>
+            <NavLink
+              to={path}
+              title={module.menuText}
+              activeClassName={style.active}
+              onClick={(e) => checkHitlAccess(e, module.name)}
+            >
               {moduleIcon} {module.experimental && <span className={style.small_tag}>Beta</span>}
             </NavLink>
           </Tooltip>
@@ -131,6 +158,26 @@ const Sidebar: FC<Props> = (props) => {
           </Fragment>
         )}
       </ul>
+
+      <Dialog
+        isOpen={showHitlDialog}
+        onClose={() => setShowHitlDialog(false)}
+        canOutsideClickClose={true}
+        canEscapeKeyClose={true}
+        style={{ width: 400 }}
+      >
+        <div className={Classes.DIALOG_BODY}>
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            <Icon icon="lock" iconSize={40} style={{ color: '#dc3545', marginBottom: 16 }} />
+            <h4 style={{ marginBottom: 12, fontSize: 16, fontWeight: 600 }}>
+              HITL Access Required
+            </h4>
+            <p style={{ color: '#666', marginBottom: 0 }}>
+              HITL is only available for Professional subscribers
+            </p>
+          </div>
+        </div>
+      </Dialog>
     </aside>
   )
 }

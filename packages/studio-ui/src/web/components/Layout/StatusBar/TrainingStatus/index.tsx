@@ -48,14 +48,6 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
       const trainSession = event.trainSession
       const previousStatus = prevTrainingStatusRef.current[trainSession.language]
 
-      // Debug: Log training session updates
-      console.log('Training session update:', {
-        language: trainSession.language,
-        status: trainSession.status,
-        progress: trainSession.progress,
-        error: (event as any).trainSession?.error
-      })
-
       // Check if training just completed successfully
       if (
         trainSession.status === 'done' &&
@@ -135,14 +127,6 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
     const hasTraining = sessions.some(session => session.status === 'training' || session.status === 'training-pending')
     const hasErrored = sessions.some(session => session.status === 'errored')
     const needsTraining = sessions.some(session => session.status === 'needs-training')
-
-    // Debug: Log current training state
-    console.log('Training status check:', {
-      sessions: sessions.map(s => ({ lang: s.language, status: s.status, progress: s.progress })),
-      hasTraining,
-      hasErrored,
-      needsTraining
-    })
 
     // Priority: training/training-pending > needs-training > errored > done
     // This ensures we show active training progress even if some languages errored

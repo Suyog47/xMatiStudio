@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router'
 import { fetchBotIds, fetchContentCategories, toggleBottomPanel } from '~/actions'
 import { RootReducer } from '~/reducers'
+import { hitlAccessStore } from '~/utils/token-store'
 
 type StateProps = ReturnType<typeof mapStateToProps>
 type DispatchProps = typeof mapDispatchToProps
@@ -79,6 +80,14 @@ const CommandPalette: FC<Props> = (props) => {
       })),
       ...props.modules
         .filter((module) => !module.noInterface)
+        .filter((module) => {
+          // Filter out HITL modules if user doesn't have access
+          if (module.name === 'hitl' || module.name === 'hitlnext') {
+            const hitlData = hitlAccessStore.get()
+            return hitlData && hitlData.hasAccess
+          }
+          return true
+        })
         .map((module) => ({
           label: `${lang.tr(`module.${module.name}.fullName`)}`,
           type: 'goto',
@@ -103,4 +112,4 @@ const mapStateToProps = (state: RootReducer) => ({
 
 const mapDispatchToProps = { fetchContentCategories, fetchBotIds, toggleBottomPanel }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(CommandPalette))
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(CommandPalette as any))

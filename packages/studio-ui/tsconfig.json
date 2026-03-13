@@ -20,6 +20,6 @@
       "botpress/sdk": ["../studio-be/src/sdk/botpress.d.ts"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/web/utils/crypto-utils.js"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/web/utils/crypto-utils.js", "src/web/utils/token-store.js"],
   "exclude": ["**/*.test.ts"]
 }

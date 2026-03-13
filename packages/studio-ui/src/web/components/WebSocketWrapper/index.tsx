@@ -3,6 +3,7 @@ import { auth } from 'botpress/shared'
 import { on } from 'events'
 import React, { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react'
 import { secureSessionStorage, secureLocalStorage } from '../../utils/secureStorage'
+import { hitlAccessStore } from '../../utils/token-store'
 import { useDevToolsProtection } from './hooks/useDevToolsProtection'
 import { useTabManager } from './hooks/useTabManager'
 import BlockedAccountScreen from './screens/BlockedAccountScreen'
@@ -39,6 +40,7 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
   onConnect,
 }) => {
   const [isConnected, setIsConnected] = useState(false)
+  const [isCheckingSubscription, setIsCheckingSubscription] = useState(true)
 
   const [showBlockedScreen, setShowBlockedScreen] = useState(() => {
     const savedBlockedState = secureSessionStorage.getItem('accountBlocked')
@@ -72,6 +74,53 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
     secureSessionStorage.clear()
     secureLocalStorage.clear()
     auth.logout(() => axios)
+  }
+
+  // Check user subscription and store in token-store
+  const checkSubscription = async (userEmail: string) => {
+    try {
+      setIsCheckingSubscription(true)
+      debug.log('[WebSocket] 📊 Checking user subscription...')
+
+      const response = await axios.post('http://localhost:8000/check-subscription', {
+        email: userEmail
+      })
+
+      if (response.data.success) {
+        const hitlData = {
+          hasAccess: response.data.hasAccess,
+          subscription: response.data.subscription,
+          checkedAt: new Date().toISOString()
+        }
+
+        // Store in hitlAccessStore
+        hitlAccessStore.set(hitlData)
+
+        debug.log('[WebSocket] ✅ HITL access data stored:', hitlData)
+      } else {
+        debug.error('[WebSocket] ❌ Subscription check failed:', response.data.msg)
+
+        // Store failed state
+        hitlAccessStore.set({
+          hasAccess: false,
+          subscription: 'Free',
+          error: response.data.msg,
+          checkedAt: new Date().toISOString()
+        })
+      }
+    } catch (error) {
+      debug.error('[WebSocket] ❌ Error checking subscription:', error)
+
+      // Store error state
+      hitlAccessStore.set({
+        hasAccess: false,
+        subscription: 'Free',
+        error: error.message || 'Failed to check subscription',
+        checkedAt: new Date().toISOString()
+      })
+    } finally {
+      setIsCheckingSubscription(false)
+    }
   }
 
   // Centralized registration function
@@ -135,6 +184,11 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
         // Send REGISTER_CHILD message if userId is provided
         if (userId) {
           sendRegistration(userId)
+
+          // Check subscription after successful connection
+          checkSubscription(userId).catch((err) => {
+            debug.error('[WebSocket] Failed to check subscription:', err)
+          })
         } else {
           debug.warn('[WebSocket] ⚠️  No userId provided yet, waiting for userId to become available')
         }
@@ -288,6 +342,25 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
   const contextValue: WebSocketContextType = {
     socket: socketRef.current,
     sendMessage,
+  }
+
+  // Show loading screen while checking subscription
+  if (isCheckingSubscription) {
+    return (
+      <div
+        style={{
+          height: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          fontSize: 20,
+          color: '#444',
+          fontWeight: 500,
+        }}
+      >
+        Loading xMati Studio...
+      </div>
+    )
   }
 
   return (

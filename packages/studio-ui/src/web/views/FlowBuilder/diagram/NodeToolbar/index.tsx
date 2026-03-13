@@ -4,6 +4,7 @@ import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import { buildNewSkill } from '~/actions'
 import { AccessControl } from '~/components/Shared/Utils'
+import { hitlAccessStore } from '~/utils/token-store'
 
 import style from './style.scss'
 
@@ -15,13 +16,24 @@ interface ToolItemProps {
 }
 
 const Toolbar: FC = (props: any) => {
+  const hitlData = hitlAccessStore.get()
+  const hasHitlAccess = hitlData && hitlData.hasAccess
+
   return (
     <div className={style.toolbar} onContextMenu={(e) => e.stopPropagation()}>
       <ToolItem label={lang.tr('studio.flow.sidePanel.node')} type="node" id="standard" icon="chat" />
       <AccessControl resource="bot.skills" operation="write">
-        {props.skills?.map((skill) => (
-          <ToolItem key={skill.id} label={lang.tr(skill.name)} type="skill" id={skill.id} icon={skill.icon} />
-        ))}
+        {props.skills
+          ?.filter((skill) => {
+            // Filter out HITL skills if user doesn't have access
+            if (skill.id === 'HitlNext') {
+              return hasHitlAccess
+            }
+            return true
+          })
+          .map((skill) => (
+            <ToolItem key={skill.id} label={lang.tr(skill.name)} type="skill" id={skill.id} icon={skill.icon} />
+          ))}
       </AccessControl>
     </div>
   )

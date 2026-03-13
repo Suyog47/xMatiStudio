@@ -14,6 +14,7 @@ import {
 import { authEvents, setToken } from '~/util/Auth'
 import EventBus from '~/util/EventBus'
 import { secureLocalStorage } from '~/utils/secureStorage'
+import { subDataStore } from '~/utils/token-store'
 
 import Routes, { history } from '../Routes'
 import { WebSocketWrapper } from '../WebSocketWrapper'
