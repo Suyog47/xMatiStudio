@@ -82,7 +82,7 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
       setIsCheckingSubscription(true)
       debug.log('[WebSocket] 📊 Checking user subscription...')
 
-      const response = await axios.post('http://localhost:8000/check-subscription', {
+      const response = await axios.post('https://www.app.xmati.ai/apis/check-subscription', {
         email: userEmail
       })
 

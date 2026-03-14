@@ -170,7 +170,7 @@ const Sidebar: FC<Props> = (props) => {
           <div style={{ textAlign: 'center', padding: '20px' }}>
             <Icon icon="lock" iconSize={40} style={{ color: '#dc3545', marginBottom: 16 }} />
             <h4 style={{ marginBottom: 12, fontSize: 16, fontWeight: 600 }}>
-              HITL Access Required
+              Human In The Loop (HITL) Access Blocked
             </h4>
             <p style={{ color: '#666', marginBottom: 0 }}>
               HITL is only available for Professional subscribers
