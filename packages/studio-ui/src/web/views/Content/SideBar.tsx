@@ -24,7 +24,15 @@ export default class SidebarView extends Component<Props> {
   render() {
     const { registered, unregistered } = this.props.categories
 
-    const contentTypeActions: SectionAction[] = registered.map((cat) => {
+    // Filter to show only specific content types
+    const allowedTypes = ['text', 'dropdown', 'image', 'video', 'audio']
+    const filteredRegistered = registered.filter((cat) => {
+      const titleLower = cat.title.toLowerCase()
+      const idLower = cat.id.toLowerCase()
+      return allowedTypes.some(type => titleLower.includes(type) || idLower.includes(type))
+    })
+
+    const contentTypeActions: SectionAction[] = filteredRegistered.map((cat) => {
       return {
         id: `btn-create-${cat.id}`,
         label: lang.tr(cat.title),
@@ -46,7 +54,7 @@ export default class SidebarView extends Component<Props> {
       ]
       : []
 
-    const contentTypes = [this.CATEGORY_ALL, ...registered].map((cat) => {
+    const contentTypes = [this.CATEGORY_ALL, ...filteredRegistered].map((cat) => {
       return {
         id: `btn-filter-${cat.id}`,
         label: !!cat.count ? `${lang.tr(cat.title)} (${cat.count})` : lang.tr(cat.title),
@@ -86,7 +94,7 @@ export default class SidebarView extends Component<Props> {
       <SidePanel style={{ backgroundColor: '#E2F2FF' }}>
         <div className={style.contentSidebar}>
           <SidePanelSection label={lang.tr('studio.content.sideBar.filterByType')} actions={actions}>
-            {registered.length > 0 && (
+            {filteredRegistered.length > 0 && (
               <ItemList items={contentTypes} onElementClicked={(el) => this.props.handleCategorySelected(el.value.id)} />
             )}
             {unregistered.length > 0 && <ItemList items={contentTypesUnregistered} />}

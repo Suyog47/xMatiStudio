@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { FormFields, lang, SupportedFileType } from 'botpress/shared'
 import cn from 'classnames'
-import { isBpUrl } from 'common/url'
+// import { isBpUrl } from 'common/url'
 import React, { FC, Fragment, useState } from 'react'
 import { AccessControl } from '~/components/Shared/Utils'
 import style from '../style.scss'
@@ -9,7 +9,7 @@ import style from '../style.scss'
 import { Schema } from '../typings'
 
 import localStyle from './style.scss'
-import UrlUpload from './UrlUpload'
+// import UrlUpload from './UrlUpload'
 interface IUploadWidgetProps {
   value: string | null
   onChange(value: string | null): void
@@ -21,13 +21,13 @@ interface IUploadWidgetProps {
 const UploadWidget: FC<IUploadWidgetProps> = (props) => {
   const { value } = props
   const [error, setError] = useState<string>(null)
-  const [enterUrlManually, setEnterUrlManually] = useState(false)
+  // const [enterUrlManually, setEnterUrlManually] = useState(false)
 
-  React.useEffect(() => {
-    if (value) {
-      setEnterUrlManually(!isBpUrl(value))
-    }
-  }, [])
+  // React.useEffect(() => {
+  //   if (value) {
+  //     setEnterUrlManually(!isBpUrl(value))
+  //   }
+  // }, [])
 
   const validate = (value: string | null): Error | undefined => {
     if (!value || !value.trim()) {
@@ -53,10 +53,10 @@ const UploadWidget: FC<IUploadWidgetProps> = (props) => {
     props.onChange(null)
   }
 
-  const handleToggleManually = () => {
-    setEnterUrlManually(!enterUrlManually)
-    setError(null)
-  }
+  // const handleToggleManually = () => {
+  //   setEnterUrlManually(!enterUrlManually)
+  //   setError(null)
+  // }
 
   const { $subtype: subtype, $filter: filter } = props.schema
 
@@ -67,21 +67,21 @@ const UploadWidget: FC<IUploadWidgetProps> = (props) => {
       fallback={<em>{lang.tr('module.builtin.types.permissionDenied')}</em>}
     >
       <Fragment>
-        {!enterUrlManually && (
-          <FormFields.Upload
-            axios={axios.create({ baseURL: window.STUDIO_API_PATH })}
-            onChange={(value) => onChange(value, true)}
-            value={value}
-            type={subtype}
-            filter={filter}
-          />
-        )}
+        {/* {!enterUrlManually && ( */}
+        <FormFields.Upload
+          axios={axios.create({ baseURL: window.STUDIO_API_PATH })}
+          onChange={(value) => onChange(value, true)}
+          value={value}
+          type={subtype}
+          filter={filter}
+        />
+        {/* )} */}
 
-        {enterUrlManually && (
+        {/* {enterUrlManually && (
           <UrlUpload value={value} type={subtype} onChange={onChange} onDelete={onDelete} onError={onError} />
-        )}
+        )} */}
 
-        {!value && (
+        {/* {!value && (
           <div className={localStyle.fieldContainer}>
             <a className={localStyle.toggleLink} onClick={handleToggleManually}>
               {!enterUrlManually
@@ -91,7 +91,9 @@ const UploadWidget: FC<IUploadWidgetProps> = (props) => {
 
             {error && <p className={cn(style.fieldError, localStyle.fieldError)}>{error}</p>}
           </div>
-        )}
+        )} */}
+
+        {error && <p className={cn(style.fieldError, localStyle.fieldError)}>{error}</p>}
       </Fragment>
     </AccessControl>
   )
