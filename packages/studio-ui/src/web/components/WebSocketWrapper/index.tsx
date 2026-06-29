@@ -3,7 +3,7 @@ import { auth } from 'botpress/shared'
 import { on } from 'events'
 import React, { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react'
 import { secureSessionStorage, secureLocalStorage } from '../../utils/secureStorage'
-import { hitlAccessStore } from '../../utils/token-store'
+import { hitlAccessStore, jwtKeyStore } from '../../utils/token-store'
 import { useDevToolsProtection } from './hooks/useDevToolsProtection'
 import { useTabManager } from './hooks/useTabManager'
 import BlockedAccountScreen from './screens/BlockedAccountScreen'
@@ -82,9 +82,27 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
       setIsCheckingSubscription(true)
       debug.log('[WebSocket] 📊 Checking user subscription...')
 
-      const response = await axios.post('https://www.app.xmati.ai/apis/check-subscription', {
-        email: userEmail
-      })
+      let token = jwtKeyStore.get()
+      if (!token) {
+        token = secureLocalStorage.getItem('jwt') || ''
+        if (token) {
+          jwtKeyStore.set(token)
+        }
+      }
+
+      if (!token) {
+        throw new Error('No authentication token found')
+      }
+
+      const response = await axios.post(
+        'http://localhost:8000/check-subscription',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
 
       if (response.data.success) {
         const hitlData = {
@@ -107,6 +125,9 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
           error: response.data.msg,
           checkedAt: new Date().toISOString()
         })
+
+        alert(`Access Denied: ${response.data.msg || 'Subscription check failed.'}`)
+        onLogout()
       }
     } catch (error) {
       debug.error('[WebSocket] ❌ Error checking subscription:', error)
@@ -118,6 +139,9 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
         error: error.message || 'Failed to check subscription',
         checkedAt: new Date().toISOString()
       })
+
+      alert(`Access Denied: ${error.message || 'Failed to check subscription'}`)
+      onLogout()
     } finally {
       setIsCheckingSubscription(false)
     }

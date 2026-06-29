@@ -27,6 +27,7 @@ import { initializeTranslations } from './translations'
 /* eslint-enable */
 import { utils, auth } from 'botpress/shared'
 import store from './store'
+import { secureLocalStorage } from './utils/secureStorage'
 
 import '@botpress/ui-shared/dist/theme.css'
 import 'bootstrap/dist/css/bootstrap.css'
@@ -60,6 +61,20 @@ axios
       console.error(`This bot doesn't exist. Redirecting to admin `)
       redirectToAdmin()
     } else {
+      const myBotIdsStr = secureLocalStorage.getItem('myBotIds')
+      if (myBotIdsStr) {
+        try {
+          const myBotIds = JSON.parse(myBotIdsStr)
+          if (!Array.isArray(myBotIds) || !myBotIds.includes(window.BOT_ID)) {
+            alert('Access Denied: You do not have permission to access this bot.')
+            redirectToAdmin()
+            return
+          }
+        } catch (e) {
+          console.error('Failed to parse myBotIds from storage', e)
+        }
+      }
+
       initializeTranslations()
 
       // Do not use "import App from ..." as hoisting will screw up styling
