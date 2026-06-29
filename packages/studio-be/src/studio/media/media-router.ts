@@ -8,7 +8,7 @@ import { CustomStudioRouter } from 'studio/utils/custom-studio-router'
 const debugMedia = DEBUG('audit:action:media-upload')
 
 const DEFAULT_ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'audio/mpeg', 'video/mp4']
-const DEFAULT_MAX_FILE_SIZE = '25mb'
+const DEFAULT_MAX_FILE_SIZE = '150mb'
 
 class MediaRouter extends CustomStudioRouter {
   constructor(services: StudioServices) {
@@ -20,7 +20,7 @@ class MediaRouter extends CustomStudioRouter {
 
     const mediaUploadMulter = fileUploadMulter(
       botpressConfig.fileUpload.allowedMimeTypes ?? DEFAULT_ALLOWED_MIME_TYPES,
-      botpressConfig.fileUpload.maxFileSize ?? DEFAULT_MAX_FILE_SIZE
+      DEFAULT_MAX_FILE_SIZE
     )
 
     router.post(
@@ -28,9 +28,15 @@ class MediaRouter extends CustomStudioRouter {
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.media'),
       this.asyncMiddleware(async (req, res) => {
+         // Set a longer timeout for file uploads (5 minutes)
+        req.setTimeout(5 * 60 * 1000, () => {
+          res.status(408).send('Request timeout. File upload took too long.')
+        })
+
         mediaUploadMulter(req, res, async (err) => {
           const email = req.tokenUser!.email
           if (err) {
+            alert(`error: ${err.message}`)
             debugMedia(`failed (${email} from ${req.ip})`, err.message)
             return res.status(400).send(err.message)
           }

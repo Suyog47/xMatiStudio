@@ -250,6 +250,13 @@ export class HTTPServer {
 
     this.app.use(`${BASE_API_PATH}/studio/modules`, this.modulesRouter.router)
 
+    // Set longer timeout for media uploads (5 minutes for large files)
+    this.app.use(`${BASE_API_PATH}/studio/:botId/media`, (req, res, next) => {
+      req.setTimeout(5 * 60 * 1000) // 5 minutes
+      res.setTimeout(5 * 60 * 1000) // 5 minutes
+      next()
+    })
+
     await this.studioRouter.setupRoutes(this.app)
 
     this.app.use((err, _req, _res, next) => {

@@ -65,7 +65,7 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
 
   // Enable DevTools protection if requested
   if (enableDevToolsProtection) {
-    useDevToolsProtection()
+    // useDevToolsProtection()
   }
 
   // Logout handler - clears auth and redirects to admin
