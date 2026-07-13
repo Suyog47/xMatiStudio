@@ -65,7 +65,7 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
 
   // Enable DevTools protection if requested
   if (enableDevToolsProtection) {
-    // useDevToolsProtection()
+    useDevToolsProtection()
   }
 
   // Logout handler - clears auth and redirects to admin
@@ -95,7 +95,7 @@ export const WebSocketWrapper: React.FC<WebSocketWrapperProps> = ({
       }
 
       const response = await axios.post(
-        'http://localhost:8000/check-subscription',
+        'https://www.app.xmati.ai/apis/check-subscription',
         {},
         {
           headers: {

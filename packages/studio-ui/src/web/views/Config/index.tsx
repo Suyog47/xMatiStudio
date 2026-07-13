@@ -14,6 +14,8 @@ import { Container, SidePanel, SidePanelSection, ItemList } from '~/components/S
 import { Item } from '~/components/Shared/Interface/typings'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
 import { secureLocalStorage } from '../../utils/secureStorage'
+import { jwtKeyStore } from '../../utils/token-store'
+import { encryptPayload } from '../../utils/aes-encryption'
 
 import style from './style.scss'
 
@@ -244,12 +246,29 @@ class ConfigView extends Component<Props, State> {
 
   sendLogsAndEmail = async (status, context) => {
     try {
+      let token = jwtKeyStore.get()
+      if (!token) {
+        token = secureLocalStorage.getItem('jwt') || ''
+        if (token) {
+          jwtKeyStore.set(token)
+        }
+      }
+
       const result = await fetch('https://www.app.xmati.ai/apis/bot-updation-log', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ email: this.getUserEmailFromStorage(), oldName: this.initialFormState.name, newName: this.state.name, botDescription: this.state.description, status, context }),
+        body: JSON.stringify({
+          payload: encryptPayload({
+            oldName: this.initialFormState.name,
+            newName: this.state.name,
+            botDescription: this.state.description,
+            status,
+            context
+          })
+        })
       })
 
       return result.json()
